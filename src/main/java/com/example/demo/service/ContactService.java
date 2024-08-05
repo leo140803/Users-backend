@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.Contacts;
+import com.example.demo.entity.Users;
 import com.example.demo.model.ContactResponse;
 import com.example.demo.model.CreateContactRequest;
 import com.example.demo.repository.ContactRepository;
@@ -20,7 +21,7 @@ public class ContactService {
     private ValidatorService validatorService;
 
     @Transactional
-    public ContactResponse create(CreateContactRequest request) {
+    public ContactResponse create(Users user, CreateContactRequest request) {
         validatorService.validate(request);
         Contacts contact= new Contacts();
         contact.setId(UUID.randomUUID().toString());
@@ -28,6 +29,7 @@ public class ContactService {
         contact.setLast_name(request.getLastName());
         contact.setEmail(request.getEmail());
         contact.setPhone(request.getPhone());
+        contact.setUser(user);
         contactRepository.save(contact);
         return ContactResponse.builder()
                 .id(contact.getId())

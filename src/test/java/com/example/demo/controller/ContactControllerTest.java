@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.entity.Contacts;
 import com.example.demo.entity.Users;
 import com.example.demo.model.ContactResponse;
 import com.example.demo.model.CreateContactRequest;
@@ -93,10 +94,38 @@ class ContactControllerTest {
         ).andDo(result -> {
             WebResponse<ContactResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<ContactResponse>>() {});
             assertNull(response.getError());
-
-            contactRepository.existsById(response.getData().getId());
+            assertTrue(contactRepository.existsById(response.getData().getId()));
         });
 
+    }
+
+    @Test
+    void getContactByIdSuccess() throws Exception {
+        Users user = new Users();
+        user.setUsername("lalala");
+        user.setPassword(BCrypt.hashpw("test", BCrypt.gensalt()));
+        user.setName("lalala");
+        user.setToken("blabla");
+        userRepository.save(user);
+        Contacts contact = new Contacts();
+        contact.setId("1");
+        contact.setFirst_name("Leonardo");
+        contact.setLast_name("Muh");
+        contact.setPhone("012313");
+        contact.setEmail("salah@gmail.com");
+        contact.setUser(user);
+        contactRepository.save(contact);
+        mockMvc.perform(
+                get("/api/contacts/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-API-TOKEN", "tEst")
+
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(result -> {
+            WebResponse<ContactResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<ContactResponse>>() {});
+            assertNull(response.getError());
+        });
     }
 
 }

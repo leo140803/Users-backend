@@ -6,8 +6,10 @@ import com.example.demo.model.ContactResponse;
 import com.example.demo.model.CreateContactRequest;
 import com.example.demo.repository.ContactRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
 
@@ -31,6 +33,17 @@ public class ContactService {
         contact.setPhone(request.getPhone());
         contact.setUser(user);
         contactRepository.save(contact);
+        return ContactResponse.builder()
+                .id(contact.getId())
+                .firstName(contact.getFirst_name())
+                .lastName(contact.getLast_name())
+                .email(contact.getEmail())
+                .phone(contact.getPhone())
+                .build();
+    }
+
+    public ContactResponse get(String id) {
+        Contacts contact= contactRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.BAD_REQUEST, "Contact not found!"));
         return ContactResponse.builder()
                 .id(contact.getId())
                 .firstName(contact.getFirst_name())

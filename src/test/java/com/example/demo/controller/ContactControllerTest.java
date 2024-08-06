@@ -127,5 +127,32 @@ class ContactControllerTest {
             assertNull(response.getError());
         });
     }
+    @Test
+    void getContactByIdNotFound() throws Exception {
+        Users user = new Users();
+        user.setUsername("lalala");
+        user.setPassword(BCrypt.hashpw("test", BCrypt.gensalt()));
+        user.setName("lalala");
+        user.setToken("blabla");
+        userRepository.save(user);
+        Contacts contact = new Contacts();
+        contact.setId("1");
+        contact.setFirst_name("Leonardo");
+        contact.setLast_name("Muh");
+        contact.setPhone("012313");
+        contact.setEmail("salah@gmail.com");
+        contact.setUser(user);
+        contactRepository.save(contact);
+        mockMvc.perform(
+                get("/api/contacts/2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-API-TOKEN", "tEst")
 
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<ContactResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<ContactResponse>>() {});
+            assertNotNull(response.getError());
+        });
+    }
 }
